@@ -73,6 +73,7 @@ function EmojiGroup({ label, value, onChange, options }: EmojiGroupProps) {
 
 const CheckInPage = () => {
   const navigate = useNavigate();
+  const alreadyCheckedIn = hasCheckedInToday();
   const [energy, setEnergy] = useState<EnergyLevel | ''>('');
   const [mood, setMood] = useState<MoodLevel | ''>('');
   const [sleepQuality, setSleepQuality] = useState<SleepQuality | ''>('');
@@ -80,20 +81,41 @@ const CheckInPage = () => {
   const [notes, setNotes] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
+  // Mostra tela de "já registrado" antes de renderizar o formulário
+  if (alreadyCheckedIn) {
+    return (
+      <main className="min-h-screen flex items-center justify-center bg-background p-4 sm:p-6">
+        <Card className="w-full max-w-md shadow-card border-0 animate-fade-in text-center">
+          <CardContent className="pt-10 pb-8 space-y-4">
+            <div className="text-5xl">✅</div>
+            <div>
+              <h2 className="text-lg font-display font-semibold text-foreground">
+                Você já registrou hoje!
+              </h2>
+              <p className="text-sm text-muted-foreground mt-1">
+                Só um check-in por dia. Volte amanhã.
+              </p>
+            </div>
+            <div className="flex flex-col gap-2 pt-2">
+              <Button onClick={() => navigate('/resumo')} className="w-full gap-2">
+                Ver meus registros
+              </Button>
+              <Button variant="ghost" onClick={() => navigate('/')} className="w-full">
+                Voltar ao início
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </main>
+    );
+  }
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!energy || !mood || !sleepQuality || !stressLevel) {
       toast.error('Complete todas as opções', {
         description: 'Toque em uma opção para cada categoria antes de salvar.',
-      });
-      return;
-    }
-
-    // FIX BUG 7: bloqueia check-in duplicado no mesmo dia
-    if (hasCheckedInToday()) {
-      toast.warning('Você já fez check-in hoje!', {
-        description: 'Só um registro por dia é permitido.',
       });
       return;
     }
