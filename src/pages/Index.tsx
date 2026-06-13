@@ -60,7 +60,7 @@ const HomePage = () => {
 
           {!hasEntries && (
             <p className="text-center text-sm text-muted-foreground pt-2">
-              Você ainda não tem registros. Comece seu primeiro check-in!
+              Você ainda não tem registros. Faça seu primeiro check-in!
             </p>
           )}
         </CardContent>
