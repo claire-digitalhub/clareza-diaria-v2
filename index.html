@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- FIX BUG 1: GA Consent Mode v2 — analytics bloqueado por padrão (LGPD) -->
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+
+      // Nega coleta por padrão (LGPD compliance)
+      gtag('consent', 'default', {
+        analytics_storage: 'denied',
+        ad_storage: 'denied',
+        wait_for_update: 500,
+      });
+
+      // Restaura consentimento de sessões anteriores, antes do GA disparar
+      try {
+        if (localStorage.getItem('clareza-diaria-ga-consent') === 'granted') {
+          gtag('consent', 'update', { analytics_storage: 'granted' });
+        }
+      } catch (_) {}
+
+      gtag('js', new Date());
+      gtag('config', 'G-0S3BL3CNGK');
+    </script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-0S3BL3CNGK"></script>
+
+    <!-- FIX BUG 3: Metadados corretos — sem branding Lovable, lang pt-BR -->
+    <title>Clareza Diária</title>
+    <meta name="description" content="Acompanhe sua energia, humor, sono e estresse diariamente." />
+    <meta name="author" content="Claire Machado" />
+
+    <meta property="og:title" content="Clareza Diária" />
+    <meta property="og:description" content="Acompanhe sua energia, humor, sono e estresse diariamente." />
+    <meta property="og:type" content="website" />
+    <!-- Substitua pela URL da sua imagem OG real quando tiver -->
+    <!-- <meta property="og:image" content="/og-image.png" /> -->
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <!-- Substitua pelo seu handle ou remova esta linha -->
+    <!-- <meta name="twitter:site" content="@seuhandle" /> -->
+  </head>
+
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
