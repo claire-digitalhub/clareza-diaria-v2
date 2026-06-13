@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
@@ -10,6 +9,7 @@ import { saveDailyEntry, hasCheckedInToday } from '@/lib/storage';
 import { getCheckInMessage } from '@/lib/messages';
 import { ArrowLeft, Check } from 'lucide-react';
 import type { EnergyLevel, MoodLevel, SleepQuality, StressLevel } from '@/lib/types';
+import { cn } from '@/lib/utils';
 
 const NOTES_MAX_LENGTH = 500;
 
@@ -37,40 +37,36 @@ const stressOptions: { value: StressLevel; label: string; emoji: string }[] = [
   { value: 'alto', label: 'Alto', emoji: '🔥' },
 ];
 
-interface OptionGroupProps {
+interface EmojiGroupProps {
   label: string;
   value: string;
   onChange: (value: string) => void;
   options: { value: string; label: string; emoji: string }[];
-  name: string;
 }
 
-function OptionGroup({ label, value, onChange, options, name }: OptionGroupProps) {
+function EmojiGroup({ label, value, onChange, options }: EmojiGroupProps) {
   return (
-    <div className="space-y-3">
-      <Label className="text-sm font-medium text-foreground">{label}</Label>
-      <RadioGroup
-        value={value}
-        onValueChange={onChange}
-        className="grid grid-cols-2 sm:grid-cols-3 gap-2"
-      >
+    <div className="space-y-2">
+      <p className="text-sm font-medium text-foreground">{label}</p>
+      <div className="grid grid-cols-3 gap-2">
         {options.map((opt) => (
-          <div key={opt.value}>
-            <RadioGroupItem
-              value={opt.value}
-              id={`${name}-${opt.value}`}
-              className="peer sr-only"
-            />
-            <Label
-              htmlFor={`${name}-${opt.value}`}
-              className="flex flex-col items-center justify-center rounded-lg border-2 border-muted bg-popover p-3 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary peer-data-[state=checked]:bg-primary/5 cursor-pointer transition-all"
-            >
-              <span className="text-xl mb-1">{opt.emoji}</span>
-              <span className="text-xs font-medium">{opt.label}</span>
-            </Label>
-          </div>
+          <button
+            key={opt.value}
+            type="button"
+            aria-pressed={value === opt.value}
+            onClick={() => onChange(opt.value)}
+            className={cn(
+              'flex flex-col items-center justify-center rounded-xl py-4 border-2 transition-all duration-150 select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
+              value === opt.value
+                ? 'border-primary bg-primary/10 shadow-sm scale-[1.05]'
+                : 'border-muted bg-muted/30 hover:border-primary/40 hover:bg-muted/50'
+            )}
+          >
+            <span className="text-2xl mb-1">{opt.emoji}</span>
+            <span className="text-xs font-medium text-foreground">{opt.label}</span>
+          </button>
         ))}
-      </RadioGroup>
+      </div>
     </div>
   );
 }
@@ -86,15 +82,14 @@ const CheckInPage = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
-    // Valida se todas as opções foram selecionadas
+
     if (!energy || !mood || !sleepQuality || !stressLevel) {
       toast.error('Complete todas as opções', {
-        description: 'Por favor, selecione uma opção para cada categoria antes de salvar.',
+        description: 'Toque em uma opção para cada categoria antes de salvar.',
       });
       return;
     }
-    
+
     // FIX BUG 7: bloqueia check-in duplicado no mesmo dia
     if (hasCheckedInToday()) {
       toast.warning('Você já fez check-in hoje!', {
@@ -113,11 +108,11 @@ const CheckInPage = () => {
         stressLevel: stressLevel as StressLevel,
         notes: notes.trim() || undefined,
       });
-      
+
       toast.success('Check-in salvo!', {
         description: getCheckInMessage(),
       });
-      
+
       navigate('/resumo');
     } catch (error) {
       console.error('Erro ao salvar check-in:', error);
@@ -144,39 +139,35 @@ const CheckInPage = () => {
             Como você está hoje?
           </CardTitle>
           <p className="text-sm text-muted-foreground">
-            Selecione suas percepções para cada categoria.
+            Toque para selecionar.
           </p>
         </CardHeader>
 
         <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <OptionGroup
-              label="Nível de Energia"
-              name="energy"
+          <form onSubmit={handleSubmit} className="space-y-5">
+            <EmojiGroup
+              label="Energia"
               value={energy}
               onChange={(v) => setEnergy(v as EnergyLevel)}
               options={energyOptions}
             />
-            
-            <OptionGroup
+
+            <EmojiGroup
               label="Humor"
-              name="mood"
               value={mood}
               onChange={(v) => setMood(v as MoodLevel)}
               options={moodOptions}
             />
-            
-            <OptionGroup
-              label="Qualidade do Sono"
-              name="sleep"
+
+            <EmojiGroup
+              label="Sono"
               value={sleepQuality}
               onChange={(v) => setSleepQuality(v as SleepQuality)}
               options={sleepOptions}
             />
-            
-            <OptionGroup
-              label="Nível de Estresse"
-              name="stress"
+
+            <EmojiGroup
+              label="Estresse"
               value={stressLevel}
               onChange={(v) => setStressLevel(v as StressLevel)}
               options={stressOptions}
@@ -184,23 +175,25 @@ const CheckInPage = () => {
 
             <div className="space-y-2">
               <Label className="text-sm font-medium text-foreground">
-                O que marcou o seu dia?
+                O que marcou o seu dia? <span className="text-muted-foreground font-normal">(opcional)</span>
               </Label>
               <Textarea
                 value={notes}
                 onChange={(e) => setNotes(e.target.value.slice(0, NOTES_MAX_LENGTH))}
-                placeholder="Ex: Reunião importante, passeio no parque, um momento de gratidão..."
-                className="resize-none min-h-[80px] text-sm"
+                placeholder="Um momento, uma observação..."
+                className="resize-none min-h-[72px] text-sm"
                 maxLength={NOTES_MAX_LENGTH}
               />
-              <p className="text-xs text-muted-foreground text-right">
-                {notes.length}/{NOTES_MAX_LENGTH}
-              </p>
+              {notes.length > 0 && (
+                <p className="text-xs text-muted-foreground text-right">
+                  {notes.length}/{NOTES_MAX_LENGTH}
+                </p>
+              )}
             </div>
 
             <Button
               type="submit"
-              className="w-full h-12 text-base font-medium gap-2 mt-4"
+              className="w-full h-12 text-base font-medium gap-2 mt-2"
               size="lg"
               disabled={isLoading}
             >
@@ -212,7 +205,7 @@ const CheckInPage = () => {
               ) : (
                 <>
                   <Check className="w-4 h-4" />
-                  Salvar check-in
+                  Salvar
                 </>
               )}
             </Button>

@@ -34,6 +34,7 @@ import type { DailyEntry } from '@/lib/types';
 import { format, parse } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { WeeklySummary } from '@/components/WeeklySummary';
+import { MoodGrid } from '@/components/MoodGrid';
 import { ArrowLeft, Plus, Calendar, Download, History } from 'lucide-react';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
@@ -274,6 +275,8 @@ const ResumoPage = () => {
                 <SummarySection entries={entries} />
                 
                 <EvolutionChart entries={entries} />
+
+                <MoodGrid entries={getAllEntries()} />
 
                 <WeeklySummary entries={entries} />
                 
