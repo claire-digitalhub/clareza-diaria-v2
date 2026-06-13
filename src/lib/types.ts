@@ -30,7 +30,7 @@ export const moodLabels: Record<MoodLevel, string> = {
 export const sleepLabels: Record<SleepQuality, string> = {
   ruim: 'Ruim',
   ok: 'Ok',
-  boa: 'Boa',
+  boa: 'Bom',
 };
 
 export const stressLabels: Record<StressLevel, string> = {

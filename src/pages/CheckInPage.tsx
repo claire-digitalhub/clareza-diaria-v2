@@ -28,7 +28,7 @@ const moodOptions: { value: MoodLevel; label: string; emoji: string }[] = [
 const sleepOptions: { value: SleepQuality; label: string; emoji: string }[] = [
   { value: 'ruim', label: 'Ruim', emoji: '😴' },
   { value: 'ok', label: 'Ok', emoji: '🛏️' },
-  { value: 'boa', label: 'Boa', emoji: '✨' },
+  { value: 'boa', label: 'Bom', emoji: '✨' },
 ];
 
 const stressOptions: { value: StressLevel; label: string; emoji: string }[] = [
